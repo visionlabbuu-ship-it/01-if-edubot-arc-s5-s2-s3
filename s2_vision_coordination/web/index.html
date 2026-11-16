@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>S2 Vision Planner</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <div class="brand-mark">S2</div>
+          <div>
+            <p class="eyebrow">ARC OPERATIONS</p>
+            <h1>Vision Planner</h1>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <span class="status-pill" id="runtime-status">Connecting</span>
+          <button class="button button-quiet" id="reset-scene" type="button">Reset simulation</button>
+          <button class="button button-primary" id="scan-now" type="button">Scan workspace</button>
+        </div>
+      </header>
+
+      <main class="main-layout">
+        <section class="visual-column" aria-label="Vision workspace">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">CAMERA / CAM1</p>
+              <h2>Workspace view</h2>
+            </div>
+            <div class="mode-switch" role="group" aria-label="Capture mode">
+              <button class="mode-button is-active" data-mode="snapshot" type="button">Snapshot</button>
+              <button class="mode-button" data-mode="live" type="button">Live</button>
+            </div>
+          </div>
+
+          <div class="vision-frame" id="vision-frame">
+            <img id="scan-image" alt="Latest camera workspace snapshot" />
+            <div class="image-placeholder" id="image-placeholder">
+              <span class="placeholder-kicker">NO SNAPSHOT</span>
+              <strong>Scan the workspace to begin</strong>
+              <span>Detected objects will appear on this frame.</span>
+            </div>
+            <div class="object-markers" id="object-markers"></div>
+            <div class="frame-footer">
+              <span id="frame-source">Waiting for camera</span>
+              <span id="frame-time">--</span>
+            </div>
+          </div>
+
+          <div class="metric-strip">
+            <div class="metric"><span>Objects</span><strong id="metric-objects">--</strong></div>
+            <div class="metric"><span>Reachable</span><strong id="metric-reachable">--</strong></div>
+            <div class="metric"><span>Calibration</span><strong id="metric-calibration">--</strong></div>
+            <div class="metric"><span>Plan status</span><strong id="metric-plan">Draft</strong></div>
+          </div>
+        </section>
+
+        <aside class="control-column" aria-label="Planning controls">
+          <section class="panel objects-panel">
+            <div class="section-heading compact">
+              <div>
+                <p class="eyebrow">1 / SELECT</p>
+                <h2>Detected objects</h2>
+              </div>
+              <span class="count-badge" id="object-count">0</span>
+            </div>
+            <div class="object-list" id="object-list">
+              <div class="empty-state">No scan loaded.</div>
+            </div>
+          </section>
+
+          <section class="panel builder-panel">
+            <div class="section-heading compact">
+              <div>
+                <p class="eyebrow">2 / CONFIGURE</p>
+                <h2>Build a step</h2>
+              </div>
+            </div>
+            <div class="selection-summary" id="selection-summary">Select an object to configure a step.</div>
+            <label class="field-label" for="arm-select">Arm</label>
+            <select id="arm-select" class="field-control" disabled>
+              <option value="">Select an object first</option>
+            </select>
+            <label class="field-label" for="destination-select">Destination</label>
+            <select id="destination-select" class="field-control" disabled>
+              <option value="">Select an arm first</option>
+            </select>
+            <div class="custom-point" id="custom-point" hidden>
+              <div>
+                <label class="field-label" for="destination-x">X (workspace mm)</label>
+                <input class="field-control" id="destination-x" inputmode="decimal" type="number" step="0.1" placeholder="300" />
+              </div>
+              <div>
+                <label class="field-label" for="destination-y">Y (workspace mm)</label>
+                <input class="field-control" id="destination-y" inputmode="decimal" type="number" step="0.1" placeholder="100" />
+              </div>
+            </div>
+            <button class="button button-secondary full-width" id="add-step" type="button" disabled>Add to plan</button>
+            <p class="field-hint" id="builder-hint">Each object can appear once in a plan.</p>
+          </section>
+        </aside>
+      </main>
+
+      <section class="plan-panel" aria-label="Execution plan">
+        <div class="section-heading compact plan-heading">
+          <div>
+            <p class="eyebrow">3 / REVIEW</p>
+            <h2>Execution sequence</h2>
+          </div>
+          <div class="plan-meta" id="plan-meta">No steps</div>
+        </div>
+        <div class="step-list" id="step-list">
+          <div class="empty-state">Add a selected object to create the first step.</div>
+        </div>
+      </section>
+
+      <footer class="action-bar">
+        <div class="execution-note">
+          <span class="note-dot"></span>
+          <span id="execution-note">Plan is read-only until you confirm it.</span>
+        </div>
+        <div class="action-buttons">
+          <button class="button button-quiet" id="clear-plan" type="button">Clear plan</button>
+          <button class="button button-secondary" id="confirm-plan" type="button" disabled>Confirm plan</button>
+          <button class="button button-primary" id="execute-plan" type="button" disabled>Execute sequence</button>
+        </div>
+      </footer>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/assets/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,3 @@
+  1. delay ใน parallel branch ไม่ support — validation reject delay_ms must be a non-negative integer ใน parallel context ต้องใช้ sequence แทน หรือทำ staggered ด้วยวิธีอื่น
+  2. task failed report ไม่ละเอียด — run_task failed บอกแค่ current_step_path แต่ไม่มี arm_id ที่ error โดยตรง ต้อง decode path เอง ถึงจะรู้ว่า step index 1 = Arm2
+speed profile มีผลน้อยมาก กับ run_path — runtime อาจใช้ความเร็ว default เท่ากัน หรือมี internal override

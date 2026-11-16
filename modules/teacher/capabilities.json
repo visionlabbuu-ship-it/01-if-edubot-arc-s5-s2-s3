@@ -1,0 +1,359 @@
+{
+  "module": "UC4_robot_teacher",
+  "runtime": "sim",
+  "version": "sim-1.1-author",
+  "description_th": "ความสามารถ + skeleton สำหรับสร้างชุด MCQ บน sim — demo ล็อกจาก skeleton, LLM เติมเฉพาะข้อความ",
+  "allowed_demo_ops": [
+    "reset_scene",
+    "home",
+    "move_named",
+    "pick_object",
+    "place_named",
+    "move_pose"
+  ],
+  "allowed_named_destinations": [
+    "home",
+    "storage_zone",
+    "drop_zone"
+  ],
+  "allowed_arms": ["Arm1", "Arm2"],
+  "default_arm": "Arm1",
+  "default_object_id": "obj-1",
+  "author": {
+    "llm_fills_text_only": true,
+    "demo_locked_to_skeleton": true,
+    "require_validate_before_teach": true,
+    "default_choice_count": 4,
+    "choice_ids": ["A", "B", "C", "D"]
+  },
+  "capabilities": [
+    {
+      "id": "pick_pipeline",
+      "title_th": "ลำดับหยิบวัตถุ (scan→hover→descend→suction→lift)",
+      "level_min": 1,
+      "level_max": 3,
+      "keywords": [
+        "หยิบ",
+        "pick",
+        "สแกน",
+        "scan",
+        "hover",
+        "ดูด",
+        "suction",
+        "pipeline",
+        "ลำดับ"
+      ],
+      "challenge_ids": [
+        "Q1_pick_pipeline",
+        "Q1_why_scan",
+        "Q2_hover_first",
+        "Q2_suction_when",
+        "Q3_wrong_order"
+      ],
+      "demo_skeleton": [
+        { "op": "reset_scene" },
+        { "op": "pick_object", "arm": "Arm1", "object_id": "obj-1" }
+      ],
+      "setup": { "reset_scene": true, "park_others": true },
+      "arm": "Arm1",
+      "sim_proven": true,
+      "notes_th": "ใช้ pick_at ภายใน — park แขนอื่น + guardrail บน sim",
+      "facts_th": [
+        "ต้องสแกนภาพก่อนเพื่อรู้พิกัดวัตถุ",
+        "ไป hover เหนือวัตถุก่อน แล้วค่อยลงแนวตั้ง (descend)",
+        "เปิด suction หลังถึงระดับสัมผัส แล้วค่อยยก (lift)",
+        "ห้ามเปิดดูดหรือพุ่งลงโดยไม่รู้พิกัด"
+      ],
+      "question_skeletons": [
+        {
+          "id": "qs_pick_order",
+          "skill": "full_pipeline_order",
+          "level": 1,
+          "mode": "mcq",
+          "teaching_goal_th": "จำลำดับ pipeline การหยิบทั้งชุด",
+          "must_cover": ["scan", "set_pose", "hover", "descend", "suction", "lift"],
+          "correct_key_points": [
+            "สแกนก่อน",
+            "hover ก่อนลง",
+            "เปิดดูดหลังสัมผัส",
+            "แล้วยก"
+          ],
+          "wrong_patterns": [
+            "suction_before_scan",
+            "descend_from_far_diagonal",
+            "place_or_home_first"
+          ],
+          "prompt_hint_th": "ถามลำดับขั้นตอนการหยิบที่ถูกต้อง มีตัวลวงที่สลับลำดับอันตราย",
+          "seed": {
+            "title_th": "ลำดับการหยิบวัตถุ",
+            "intro": "เลือกคำตอบที่ถูก แล้วระบบจะอธิบายและโชว์หุ่นให้ดู",
+            "question_th": "ถ้าต้องการให้แขนกลหยิบวัตถุ ต้องผ่านขั้นตอนใด ตามลำดับใด?",
+            "choices": [
+              { "id": "A", "label": "เปิดดูด → ลงระดับสัมผัส → สแกนภาพ → ยกขึ้น" },
+              {
+                "id": "B",
+                "label": "สแกนภาพ → ตั้งพิกัด → ไป hover → ลงระดับสัมผัส → เปิดดูด → ยกขึ้น"
+              },
+              { "id": "C", "label": "กลับ home → วางของ → สแกนภาพ → เปิดดูด" },
+              {
+                "id": "D",
+                "label": "ลงระดับสัมผัสทันทีจากไกล → เปิดดูด → สแกนทีหลัง"
+              }
+            ],
+            "correct_choice": "B",
+            "explanation_th": "ต้องรู้ตำแหน่งจากสแกนก่อน แล้ว hover ค่อยลง เปิดดูด แล้วยก",
+            "wrong_hints": {
+              "A": "เปิดดูดก่อนสแกน/ลง = ยังไม่รู้พิกัด",
+              "C": "home/วาง ไม่ใช่ลำดับเริ่มต้นของการหยิบ",
+              "D": "พุ่งลงจากไกลอันตราย และยังไม่สแกน"
+            }
+          }
+        },
+        {
+          "id": "qs_why_scan",
+          "skill": "why_scan_first",
+          "level": 1,
+          "mode": "mcq",
+          "teaching_goal_th": "เข้าใจว่าสแกนมีไว้หาพิกัด ไม่ใช่แค่โชว์ภาพ",
+          "must_cover": ["scan", "coordinates"],
+          "correct_key_points": ["หาตำแหน่งวัตถุ", "ตั้งเป้าหมายการเคลื่อนที่"],
+          "wrong_patterns": [
+            "scan_is_cosmetics",
+            "scan_closes_suction",
+            "scan_only_after_pick"
+          ],
+          "prompt_hint_th": "ถามเหตุผลที่ต้องสแกนก่อนสั่งหยิบ",
+          "seed": {
+            "title_th": "ทำไมต้องสแกนก่อน?",
+            "intro": "เลือกคำตอบที่ถูก",
+            "question_th": "ทำไมก่อนสั่งแขนหยิบ ควรสแกนภาพก่อน?",
+            "choices": [
+              { "id": "A", "label": "เพื่อให้หุ่นสวยบนจอเท่านั้น ไม่เกี่ยวกับพิกัด" },
+              {
+                "id": "B",
+                "label": "เพื่อหาตำแหน่งวัตถุ (พิกัด) แล้วค่อยตั้งเป้าหมายการเคลื่อนที่"
+              },
+              { "id": "C", "label": "เพื่อปิด suction อัตโนมัติ" },
+              { "id": "D", "label": "สแกนหลังหยิบเสร็จเท่านั้น" }
+            ],
+            "correct_choice": "B",
+            "explanation_th": "camera scan บอกพิกัดวัตถุใน workspace — แขนใช้ไป hover/descend/pick",
+            "wrong_hints": {
+              "A": "สแกนมีไว้หาพิกัดจริง ไม่ใช่แค่โชว์ภาพ",
+              "C": "สแกนไม่ได้ปิด suction",
+              "D": "ต้องสแกนก่อนหยิบ ไม่ใช่หลัง"
+            }
+          }
+        },
+        {
+          "id": "qs_why_hover",
+          "skill": "why_hover_before_descend",
+          "level": 2,
+          "mode": "mcq",
+          "teaching_goal_th": "เข้าใจว่า hover ลดโอกาสชน ก่อนลงแนวตั้ง",
+          "must_cover": ["hover", "descend"],
+          "correct_key_points": ["ไปเหนือวัตถุก่อน", "ลงแนวตั้ง", "ไม่พุ่งเฉียงจากไกล"],
+          "wrong_patterns": [
+            "diagonal_approach",
+            "suction_at_home",
+            "place_before_approach"
+          ],
+          "prompt_hint_th": "ถามว่าก่อนลงระดับสัมผัสควรทำอะไร",
+          "seed": {
+            "title_th": "ทำไมต้อง hover ก่อนลง?",
+            "intro": "เลือกคำตอบที่ถูก",
+            "question_th": "เมื่อมีพิกัดวัตถุแล้ว ก่อนลงระดับสัมผัส ควรทำอะไร?",
+            "choices": [
+              {
+                "id": "A",
+                "label": "เคลื่อนทแยงลงหาวัตถุจากไกลเลย (approach แนวเฉียงยาว)"
+              },
+              {
+                "id": "B",
+                "label": "ไป hover เหนือวัตถุก่อน (สูงพอไม่ชน) แล้วค่อยลงแนวตั้ง"
+              },
+              { "id": "C", "label": "เปิดดูดตั้งแต่ยังอยู่ home" },
+              { "id": "D", "label": "วางของที่ storage ก่อนทุกครั้ง" }
+            ],
+            "correct_choice": "B",
+            "explanation_th": "hover เหนือเป้าแล้ว descend แนวตั้ง ลดโอกาสชน — แบบ pick_at",
+            "wrong_hints": {
+              "A": "พุ่งเฉียงจากไกลเสี่ยงชน",
+              "C": "เปิดดูดตอน home ผิดจังหวะ",
+              "D": "วางของไม่เกี่ยวกับการเข้าใกล้วัตถุ"
+            }
+          }
+        },
+        {
+          "id": "qs_suction_timing",
+          "skill": "suction_when",
+          "level": 2,
+          "mode": "mcq",
+          "teaching_goal_th": "เปิดดูดหลังถึง surface ก่อนยก",
+          "must_cover": ["descend", "suction", "lift"],
+          "correct_key_points": ["หลังลงถึงระดับสัมผัส", "แล้วเปิดดูด", "แล้วยก"],
+          "wrong_patterns": [
+            "suction_while_far",
+            "lift_before_suction",
+            "no_suction_needed"
+          ],
+          "prompt_hint_th": "ถามจังหวะเปิด suction ในลำดับหยิบ",
+          "seed": {
+            "title_th": "เปิดดูดตอนไหน?",
+            "intro": "เลือกจังหวะที่ถูก",
+            "question_th": "ในลำดับหยิบวัตถุ ควรเปิด suction (ดูด/หยิบ) ตอนไหน?",
+            "choices": [
+              { "id": "A", "label": "ทันทีหลังสแกน ขณะแขนยังอยู่ไกล" },
+              {
+                "id": "B",
+                "label": "หลังลงถึงระดับสัมผัส (surface) แล้ว ค่อยเปิดดูด แล้วยก"
+              },
+              { "id": "C", "label": "หลังยกขึ้นสูงแล้วเท่านั้น" },
+              { "id": "D", "label": "ไม่ต้องเปิดดูด — แค่ชนวัตถุก็ถือว่าหยิบได้" }
+            ],
+            "correct_choice": "B",
+            "explanation_th": "approach→descend→suction on→lift — เปิดดูดเมื่ออยู่ที่ระดับสัมผัสแล้ว",
+            "wrong_hints": {
+              "A": "ดูดตอนยังไกล = ยังไม่แนบวัตถุ",
+              "C": "ถ้ายกก่อนเปิดดูด ของจะไม่ติด",
+              "D": "ระบบนี้ใช้ suction ไม่ใช่แค่ชน"
+            }
+          }
+        },
+        {
+          "id": "qs_spot_wrong_order",
+          "skill": "identify_unsafe_order",
+          "level": 3,
+          "mode": "mcq",
+          "teaching_goal_th": "แยกลำดับที่อันตราย/ใช้ไม่ได้ ออกจากลำดับถูก",
+          "must_cover": ["scan", "hover", "suction", "safety"],
+          "correct_key_points": [
+            "ลำดับผิดคือดูดตั้งแต่ home + ไม่สแกน + พุ่งทแยง"
+          ],
+          "wrong_patterns": [
+            "mark_correct_as_wrong",
+            "mark_safe_pick_as_wrong"
+          ],
+          "prompt_hint_th": "ถามข้อใดเป็นลำดับผิดและอันตราย — ข้อถูกต้องชี้ลำดับผิด",
+          "seed": {
+            "title_th": "จับลำดับที่ผิด",
+            "intro": "เลือกข้อที่อธิบาย «ลำดับผิด» ได้ถูกต้อง",
+            "question_th": "ข้อใดเป็นลำดับที่ผิด และอันตราย/ใช้ไม่ได้ชัดเจน?",
+            "choices": [
+              {
+                "id": "A",
+                "label": "สแกน → ตั้งพิกัด → hover → ลง → ดูด → ยก"
+              },
+              {
+                "id": "B",
+                "label": "เปิดดูดตั้งแต่ home → พุ่งลงทแยงหาวัตถุโดยไม่สแกน → ยก"
+              },
+              {
+                "id": "C",
+                "label": "สแกน → hover → ลง → ดูด → ยก (หลังรู้พิกัดแล้ว)"
+              },
+              {
+                "id": "D",
+                "label": "pick ครบแล้วยังถือของ ไป place ที่ปลายทาง"
+              }
+            ],
+            "correct_choice": "B",
+            "explanation_th": "ข้อ B ผิดชัด: ไม่สแกน ดูดตั้งแต่ home พุ่งทแยง",
+            "wrong_hints": {
+              "A": "นี่คือลำดับถูก ไม่ใช่ข้อผิด",
+              "C": "ลำดับนี้ใช้ได้",
+              "D": "นี่คือพฤติกรรมถูกของ pick-then-place"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "pick_then_place",
+      "title_th": "หยิบแล้ววางที่ storage_zone",
+      "level_min": 2,
+      "level_max": 2,
+      "keywords": [
+        "วาง",
+        "place",
+        "storage",
+        "หยิบแล้ววาง",
+        "pick and place"
+      ],
+      "challenge_ids": ["Q2_pick_place"],
+      "demo_skeleton": [
+        { "op": "reset_scene" },
+        { "op": "pick_object", "arm": "Arm1", "object_id": "obj-1" },
+        { "op": "place_named", "arm": "Arm1", "destination": "storage_zone" }
+      ],
+      "setup": { "reset_scene": true, "park_others": true },
+      "arm": "Arm1",
+      "sim_proven": true,
+      "notes_th": "ถือของจนถึงปลายทาง แล้วปิดดูดตอน place",
+      "facts_th": [
+        "ทำขา pick ให้ครบก่อน",
+        "ถือของ (suction on) ขณะเคลื่อนไปปลายทาง",
+        "ที่ storage: hover → ลง → ปิดดูด → ยก",
+        "ห้ามปิดดูดกลางทาง"
+      ],
+      "question_skeletons": [
+        {
+          "id": "qs_pick_place_order",
+          "skill": "pick_then_place_pipeline",
+          "level": 2,
+          "mode": "mcq",
+          "teaching_goal_th": "จำ pipeline หยิบแล้ววางทั้งสองขา",
+          "must_cover": ["pick", "carry", "place", "release"],
+          "correct_key_points": [
+            "pick ครบ",
+            "ไปปลายทางยังถือของ",
+            "ปิดดูดตอนวาง"
+          ],
+          "wrong_patterns": [
+            "place_before_pick",
+            "release_midair",
+            "move_without_pick"
+          ],
+          "prompt_hint_th": "ถามลำดับหยิบไปวาง storage_zone",
+          "seed": {
+            "title_th": "ลำดับหยิบแล้ววาง",
+            "intro": "เลือก pipeline ที่ถูก",
+            "question_th": "ถ้าจะหยิบวัตถุไปวางที่ storage_zone ลำดับใดถูกที่สุด?",
+            "choices": [
+              {
+                "id": "A",
+                "label": "วางที่ storage ก่อน → ค่อยสแกน → แล้วหยิบ"
+              },
+              {
+                "id": "B",
+                "label": "สแกน→ตั้งพิกัด→hover→ลง→ดูด→ยก → ไปปลายทาง hover→ลง→ปิดดูด→ยก"
+              },
+              {
+                "id": "C",
+                "label": "ปิดดูดกลางอากาศระหว่างทาง แล้วค่อยไป storage"
+              },
+              {
+                "id": "D",
+                "label": "แค่ move ไป storage โดยไม่ต้องหยิบ"
+              }
+            ],
+            "correct_choice": "B",
+            "explanation_th": "ครบขา pick และ place — ถือของจนถึงปลายทาง แล้วค่อยปิดดูด",
+            "wrong_hints": {
+              "A": "วางก่อนหยิบไม่ได้",
+              "C": "ปิดดูดกลางทาง = ของหล่น",
+              "D": "move อย่างเดียวไม่ได้ย้ายวัตถุ"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "out_of_scope_sim_v1": [
+    "hardware_mg400",
+    "dual_arm_coordinated_demo",
+    "freeform_move_outside_skeleton",
+    "custom_object_ids_beyond_scene_default",
+    "llm_writes_demo_steps"
+  ]
+}

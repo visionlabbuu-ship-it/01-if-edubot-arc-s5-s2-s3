@@ -1,0 +1,50 @@
+{
+  "name": "staggered-circle-square",
+  "steps": [
+    {
+      "type": "parallel",
+      "steps": [
+        {
+          "type": "sequence",
+          "steps": [
+            {
+              "type": "motion_profile",
+              "arm_id": "Arm1",
+              "params": {
+                "speed_l": 70,
+                "acc_l": 70
+              }
+            },
+            {
+              "type": "run_path",
+              "arm_id": "Arm1",
+              "params": {
+                "path_type": "circle",
+                "radius": 20,
+                "count": 1
+              }
+            }
+          ]
+        },
+        {
+          "type": "sequence",
+          "steps": [
+            {
+              "type": "delay",
+              "delay_ms": 2000
+            },
+            {
+              "type": "run_path",
+              "arm_id": "Arm2",
+              "params": {
+                "path_type": "rectangle",
+                "width": 25,
+                "height": 25
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

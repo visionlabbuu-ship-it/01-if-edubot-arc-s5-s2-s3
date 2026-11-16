@@ -1,0 +1,46 @@
+{
+    "profile_name":  "MaxPlus",
+    "base_url":  "https://api.maxplus-ai.cc",
+    "default_selector":  "sonnet5",
+    "models":  [
+                   {
+                       "selector":  "sonnet5",
+                       "profile_id":  "provider_maxplus_sonnet5",
+                       "profile_name":  "MaxPlus Sonnet 5",
+                       "provider":  "anthropic",
+                       "id":  "claude-sonnet-5",
+                       "label":  "MaxPlus Claude Sonnet 5",
+                       "verified":  "2026-08-11"
+                   },
+                   {
+                       "selector":  "terra",
+                       "profile_id":  "provider_maxplus_terra",
+                       "profile_name":  "MaxPlus Terra",
+                       "provider":  "openai",
+                       "api_format":  "chat_completions",
+                       "id":  "gpt-5.6-terra",
+                       "label":  "MaxPlus GPT 5.6 Terra",
+                       "verified":  "2026-08-11"
+                   },
+                   {
+                       "selector":  "grok",
+                       "profile_id":  "provider_maxplus_grok",
+                       "profile_name":  "MaxPlus Grok 4.6",
+                       "provider":  "openai",
+                       "api_format":  "chat_completions",
+                       "id":  "grok-4.6",
+                       "label":  "MaxPlus Grok 4.6",
+                       "verified":  "2026-08-13"
+                   },
+                   {
+                       "selector":  "deepseek",
+                       "profile_id":  "provider_maxplus_deepseek",
+                       "profile_name":  "MaxPlus DeepSeek V4 Pro",
+                       "provider":  "openai",
+                       "api_format":  "chat_completions",
+                       "id":  "deepseek-v4-pro",
+                       "label":  "MaxPlus DeepSeek V4 Pro",
+                       "verified":  "2026-08-13"
+                   }
+               ]
+}

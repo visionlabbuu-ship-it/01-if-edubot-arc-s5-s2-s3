@@ -1,0 +1,56 @@
+{
+  "name": "same-distance-different-speeds",
+  "steps": [
+    {
+      "type": "parallel",
+      "steps": [
+        {
+          "type": "sequence",
+          "steps": [
+            {
+              "type": "motion_profile",
+              "arm_id": "Arm1",
+              "params": {
+                "speed_l": 80,
+                "acc_l": 80
+              }
+            },
+            {
+              "type": "move_relative",
+              "arm_id": "Arm1",
+              "params": {
+                "dx": 40,
+                "dy": 0,
+                "dz": 0,
+                "dr": 0
+              }
+            }
+          ]
+        },
+        {
+          "type": "sequence",
+          "steps": [
+            {
+              "type": "motion_profile",
+              "arm_id": "Arm2",
+              "params": {
+                "speed_l": 40,
+                "acc_l": 40
+              }
+            },
+            {
+              "type": "move_relative",
+              "arm_id": "Arm2",
+              "params": {
+                "dx": 40,
+                "dy": 0,
+                "dz": 0,
+                "dr": 0
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

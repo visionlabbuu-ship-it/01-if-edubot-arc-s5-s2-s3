@@ -1,0 +1,4 @@
+interface:
+  display_name: "ARC Benchmark Collector"
+  short_description: "Collect ARC evidence, review it, then record verdicts"
+  default_prompt: "Use $arc-benchmark-collector to collect three ARC attempts, read every final answer yourself, and record only your evidence-backed verdicts."

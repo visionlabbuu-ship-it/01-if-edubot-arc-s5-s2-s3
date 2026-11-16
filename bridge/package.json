@@ -1,0 +1,9 @@
+{
+  "name": "arc-web-bridge",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bridge": "node ./arc-bridge.mjs",
+    "test": "node --test ./arc-bridge.test.mjs"
+  }
+}
